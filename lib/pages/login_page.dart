@@ -1,23 +1,50 @@
 import 'package:fersodict/components/button.dart';
 import 'package:fersodict/components/textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginPage extends StatelessWidget {
+import '../providers/auth_notifier.dart';
+
+class LoginPage extends ConsumerWidget {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final void Function()? onTap;
 
   LoginPage({super.key, required this.onTap});
 
-  void login() {
-    // Implement login logic here
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    print('Email: $email, Password: $password');
+  Future<void> login(BuildContext context, WidgetRef ref) async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email and password required')),
+      );
+      return;
+    }
+
+    await ref.read(authNotifierProvider.notifier).login(email, password);
+
+    final authState = ref.read(authNotifierProvider);
+
+    if (!context.mounted) return;
+
+    authState.when(
+      loading: () {},
+      error: (_, __) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid credentials'))),
+      data: (token) {
+        print('token:::::::::::: $token');
+        if (token != null) {
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      },
+    );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Center(
         child: Column(
@@ -45,7 +72,7 @@ class LoginPage extends StatelessWidget {
               controller: _passwordController,
             ),
             SizedBox(height: 40),
-            Button(text: 'Login', onPressed: login),
+            Button(text: 'Login', onPressed: () => login(context, ref)),
             SizedBox(height: 80),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
