@@ -41,6 +41,7 @@ dependencies:
   jwt_decoder: ^2.0.1
   flutter_secure_storage: ^10.0.0
   flutter_dotenv: ^5.1.0
+  flag: ^7.0.2
 
 dev_dependencies:
   flutter_test:

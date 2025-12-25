@@ -1,7 +1,9 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:fersodict/core/jwt.dart';
 import 'package:fersodict/core/secure_storage.dart';
+import 'package:fersodict/models/settings.dart';
 import 'package:mongo_dart/mongo_dart.dart';
-import 'package:bcrypt/bcrypt.dart';
+
 import '../models/user.dart';
 import 'mongo_service.dart';
 
@@ -61,7 +63,7 @@ class AuthRepository {
     final matches = BCrypt.checkpw(plainPassword, storedHash);
     if (!matches) throw InvalidCredentials();
 
-    await storeToken(token); // save immediately
+    await storeToken(token);
     return token;
   }
 
@@ -76,6 +78,38 @@ class AuthRepository {
   }) async {
     await register(email: email, plainPassword: plainPassword, name: name);
     return login(email: email, plainPassword: plainPassword);
+  }
+
+  Future<Settings?> getSettings(String userId) async {
+    await MongoService.open();
+    final map = await MongoService.settings.findOne({'userId': userId});
+    return map == null ? null : Settings.fromMap(map);
+  }
+
+  Future<Settings> getOrCreateSettings(String userId) async {
+    final existing = await getSettings(userId);
+    if (existing != null) return existing;
+
+    final empty = Settings(userId: userId, userLangs: ['de']);
+    await MongoService.settings.insertOne({
+      'userId': userId,
+      'languages': empty.userLangs,
+    });
+
+    return empty;
+  }
+
+  Future<void> updateSettings({
+    required String userId,
+    required List<String> languages,
+  }) async {
+    await MongoService.open();
+    await MongoService.settings.updateOne(
+      {'userId': userId},
+      {
+        '\$set': {'languages': languages},
+      },
+    );
   }
 }
 

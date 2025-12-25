@@ -6,6 +6,7 @@ class MongoService {
   static final _connectionString = dotenv.env['MONGO_URI'];
   static Db? _db;
   static DbCollection get users => _db!.collection('User');
+  static DbCollection get settings => _db!.collection('Settings');
 
   static Future<void> open() async {
     if (_db != null && _db!.isConnected) return;

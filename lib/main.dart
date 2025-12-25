@@ -1,5 +1,6 @@
 import 'package:fersodict/auth/auth.dart';
 import 'package:fersodict/pages/home_page.dart';
+import 'package:fersodict/pages/settings_page.dart';
 import 'package:fersodict/providers/auth_notifier.dart';
 import 'package:fersodict/themes/dark_mode.dart';
 import 'package:fersodict/themes/light_mode.dart';
@@ -34,6 +35,7 @@ class MyApp extends ConsumerWidget {
       routes: {
         '/auth': (_) => const Authentication(),
         '/home': (_) => const HomePage(),
+        '/settings': (_) => const SettingsPage(),
       },
     );
   }

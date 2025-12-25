@@ -1,4 +1,5 @@
 import 'package:fersodict/components/theme_toggler.dart';
+import 'package:fersodict/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,6 +10,8 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(settingsProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('PersoDict'),
@@ -20,6 +23,13 @@ class HomePage extends ConsumerWidget {
             onPressed: () {
               ref.read(authNotifierProvider.notifier).logout();
               Navigator.pushReplacementNamed(context, '/auth');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Settings',
+            onPressed: () {
+              Navigator.pushReplacementNamed(context, '/settings');
             },
           ),
         ],
